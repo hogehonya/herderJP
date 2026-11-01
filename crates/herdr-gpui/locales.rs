@@ -18,8 +18,21 @@ pub enum Error {
     Io(PathBuf, std::io::Error),
     NotUtf8(PathBuf),
     Parse(PathBuf, Vec<fluent_syntax::parser::ParserError>),
-    Prefix { path: PathBuf, id: String },
-    Duplicate { language: String, id: String },
+    Prefix {
+        path: PathBuf,
+        id: String,
+    },
+    Duplicate {
+        language: String,
+        id: String,
+    },
+    Variables {
+        path: PathBuf,
+        language: String,
+        id: String,
+        expected: String,
+        found: String,
+    },
     Missing(PathBuf),
 }
 
@@ -37,6 +50,17 @@ impl fmt::Display for Error {
                 path.display()
             ),
             Self::Duplicate { language, id } => write!(f, "{id} is defined twice in {language}"),
+            Self::Variables {
+                path,
+                language,
+                id,
+                expected,
+                found,
+            } => write!(
+                f,
+                "{id} in {} takes {found}, but {FALLBACK} takes {expected} ({language})",
+                path.display()
+            ),
             Self::Missing(path) => write!(f, "{} has no {FALLBACK} messages", path.display()),
         }
     }
@@ -85,6 +109,8 @@ pub fn generate(manifest: &Path, out: &Path) -> Result<(), Error> {
     let mut seen = BTreeSet::new();
     // ID -> the variables it takes, and the messages it references.
     let mut fallback: BTreeMap<String, (BTreeSet<String>, BTreeSet<String>)> = BTreeMap::new();
+    // language and ID -> where the message is and what it takes.
+    let mut translations: BTreeMap<(String, String), (PathBuf, Uses)> = BTreeMap::new();
     for file in &files {
         let source =
             fs::read_to_string(&file.path).map_err(|error| Error::Io(file.path.clone(), error))?;
@@ -107,13 +133,29 @@ pub fn generate(manifest: &Path, out: &Path) -> Result<(), Error> {
                     id,
                 });
             }
-            if file.language == FALLBACK {
-                let mut uses = (BTreeSet::new(), BTreeSet::new());
-                if let Some(pattern) = &message.value {
-                    pattern_uses(pattern, &mut uses);
-                }
-                fallback.insert(id, uses);
+            let mut uses = (BTreeSet::new(), BTreeSet::new());
+            if let Some(pattern) = &message.value {
+                pattern_uses(pattern, &mut uses);
             }
+            if file.language == FALLBACK {
+                fallback.insert(id, uses);
+            } else {
+                translations.insert((file.language.clone(), id), (file.path.clone(), uses));
+            }
+        }
+    }
+    for ((language, id), (path, found)) in &translations {
+        let Some(expected) = fallback.get(id) else {
+            continue;
+        };
+        if expected != found {
+            return Err(Error::Variables {
+                path: path.clone(),
+                language: language.clone(),
+                id: id.clone(),
+                expected: describe(expected),
+                found: describe(found),
+            });
         }
     }
     let mut code = String::from("pub(crate) const FILES: &[herdr_i18n::File] = &[\n");
@@ -176,6 +218,22 @@ fn variables(
 }
 
 type Uses = (BTreeSet<String>, BTreeSet<String>);
+
+fn describe(uses: &Uses) -> String {
+    let (variables, references) = uses;
+    let variables: Vec<_> = variables.iter().map(|name| format!("${name}")).collect();
+    let references: Vec<_> = references.iter().cloned().collect();
+    match (variables.is_empty(), references.is_empty()) {
+        (true, true) => "no arguments".to_owned(),
+        (false, true) => variables.join(", "),
+        (true, false) => format!("references to {}", references.join(", ")),
+        (false, false) => format!(
+            "{}, and references to {}",
+            variables.join(", "),
+            references.join(", ")
+        ),
+    }
+}
 
 fn pattern_uses(pattern: &ast::Pattern<&str>, uses: &mut Uses) {
     for element in &pattern.elements {

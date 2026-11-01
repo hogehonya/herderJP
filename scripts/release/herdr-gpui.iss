@@ -91,6 +91,7 @@ ShowLanguageDialog=auto
 ; language Setup ran in.
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl,installer\en-US.isl"
+Name: "japanese"; MessagesFile: "compiler:Languages\Japanese.isl,installer\ja.isl"
 
 [Tasks]
 Name: "addtopath"; Description: "{cm:AddToPath}"

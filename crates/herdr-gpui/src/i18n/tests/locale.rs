@@ -4,7 +4,7 @@ use gpui::TestAppContext;
 #[gpui::test]
 fn the_qa_pseudo_locale_switches_text_and_back(cx: &mut TestAppContext) {
     cx.update(|cx| {
-        install(&Language::System, cx);
+        install(&Language::Locale(Locale::FALLBACK), cx);
         assert_eq!(shown_pseudo(), None);
         toggle_pseudo(Pseudo::Accented, cx);
         assert_eq!(shown_pseudo(), Some(Pseudo::Accented));
@@ -45,5 +45,20 @@ fn a_reloaded_setting_switches_the_locale_but_the_qa_one_wins(cx: &mut TestAppCo
         let current = cx.global::<CurrentLocale>();
         assert_eq!(current.locale(), &Locale::FALLBACK);
         assert_eq!(fl!("palette-filter-all"), "All");
+    });
+}
+
+#[gpui::test]
+fn the_japanese_setting_shows_japanese_text(cx: &mut TestAppContext) {
+    cx.update(|cx| {
+        install(&Language::Locale("ja".parse().unwrap()), cx);
+        assert_eq!(cx.global::<CurrentLocale>().locale().to_string(), "ja");
+        assert_eq!(cx.global::<CurrentLocale>().direction(), Direction::Ltr);
+        assert_eq!(fl!("palette-filter-all"), "すべて");
+        assert_eq!(endonym(&"ja".parse().unwrap()), "日本語");
+        toggle_pseudo(Pseudo::Accented, cx);
+        assert!(herdr_i18n::pseudo::is_marked(&fl!("palette-filter-all")));
+        toggle_pseudo(Pseudo::Accented, cx);
+        assert_eq!(fl!("palette-filter-all"), "すべて");
     });
 }
