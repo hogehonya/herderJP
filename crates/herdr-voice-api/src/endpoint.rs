@@ -5,8 +5,7 @@
 //! user's socket, a symlink, or a regular file.
 
 use std::{
-    fs,
-    io,
+    fs, io,
     os::unix::{
         fs::{FileTypeExt, MetadataExt},
         net::UnixStream,

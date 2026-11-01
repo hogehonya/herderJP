@@ -25,7 +25,10 @@ fn snapshot_returns_state_without_the_raw_transcript() {
     assert!(!result.auto_accept);
     assert_eq!(result.permissions.len(), 1);
     assert_eq!(result.permissions[0].permission.id, PermissionId(7));
-    assert_eq!(result.permissions[0].tool.as_ref().unwrap().title, "cargo test");
+    assert_eq!(
+        result.permissions[0].tool.as_ref().unwrap().title,
+        "cargo test"
+    );
     assert_eq!(result.plan.len(), 1);
     assert_eq!(result.queued, 0);
     assert_eq!(result.turn, Some(Turn { started_ms: 100 }));
@@ -36,10 +39,7 @@ fn snapshot_returns_state_without_the_raw_transcript() {
     assert!(json.get("entries").is_none());
     assert!(json.get("commands").is_none());
     assert!(json.get("queued_prompts").is_none());
-    assert_eq!(
-        json["permissions"][0]["options"][0]["kind"],
-        "allow_always"
-    );
+    assert_eq!(json["permissions"][0]["options"][0]["kind"], "allow_always");
     assert_eq!(json["permissions"][0]["tool"]["title"], "cargo test");
     assert_eq!(json["cursor"]["seq"], 12);
 }

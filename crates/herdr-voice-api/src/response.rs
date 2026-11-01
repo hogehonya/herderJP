@@ -4,7 +4,11 @@ use std::io::Write;
 
 use serde::Serialize;
 
-use crate::{error::Error, list::ListResult, ops::{AnswerResult, PromptResult, SnapshotResult}};
+use crate::{
+    error::Error,
+    list::ListResult,
+    ops::{AnswerResult, PromptResult, SnapshotResult},
+};
 
 #[derive(Serialize)]
 #[serde(untagged)]

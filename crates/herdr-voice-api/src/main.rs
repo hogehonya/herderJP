@@ -39,6 +39,9 @@ fn main() -> std::process::ExitCode {
 fn main() -> std::process::ExitCode {
     use std::io::Write;
 
-    let _ = writeln!(std::io::stderr(), "herdr-voice-api は Unix でのみ利用できます");
+    let _ = writeln!(
+        std::io::stderr(),
+        "herdr-voice-api は Unix でのみ利用できます"
+    );
     std::process::ExitCode::from(2)
 }

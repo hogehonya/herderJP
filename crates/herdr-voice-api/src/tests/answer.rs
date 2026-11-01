@@ -1,5 +1,8 @@
 use super::*;
-use crate::{error::Error, ops::{self, Decision, select_option}};
+use crate::{
+    error::Error,
+    ops::{self, Decision, select_option},
+};
 
 #[test]
 fn approve_uses_allow_once_even_when_allow_always_is_offered_first() {
@@ -96,7 +99,10 @@ fn deny_falls_back_to_reject_always_but_approve_never_uses_allow_always() {
     };
 
     assert!(select_option(&permission, Decision::Approve).is_none());
-    assert_eq!(select_option(&permission, Decision::Deny).unwrap().id, "never");
+    assert_eq!(
+        select_option(&permission, Decision::Deny).unwrap().id,
+        "never"
+    );
 }
 
 #[test]

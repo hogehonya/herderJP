@@ -10,7 +10,10 @@ use herdr_chat_protocol::{
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::{client::{Attached, Timeouts, WelcomeInfo}, error::{Error, Result}};
+use crate::{
+    client::{Attached, Timeouts, WelcomeInfo},
+    error::{Error, Result},
+};
 
 /// The most tool locations one permission carries into the summary.
 const MAX_TOOL_LOCATIONS: usize = 16;
@@ -110,9 +113,16 @@ pub(crate) fn prompt(
     }
 
     let command_id = command_id.unwrap_or_else(CommandId::random);
-    let command = Command::Prompt { attachments: Vec::new(), text: text.to_owned() };
+    let command = Command::Prompt {
+        attachments: Vec::new(),
+        text: text.to_owned(),
+    };
     attached.conn.command(command_id, command)?;
-    Ok(PromptResult { accepted: true, command_id, endpoint_id: endpoint_id.to_string() })
+    Ok(PromptResult {
+        accepted: true,
+        command_id,
+        endpoint_id: endpoint_id.to_string(),
+    })
 }
 
 pub(crate) fn answer(
@@ -137,13 +147,18 @@ pub(crate) fn answer(
             .permissions
             .iter()
             .find(|permission| permission.id == permission_id)
-            .ok_or(Error::UnknownPermission { permission_id: permission_id.0 })?;
+            .ok_or(Error::UnknownPermission {
+                permission_id: permission_id.0,
+            })?;
         let option = select_option(permission, decision).ok_or(Error::NoMatchingOption)?;
         (option.id.clone(), option.kind)
     };
 
     let command_id = command_id.unwrap_or_else(CommandId::random);
-    let command = Command::Answer { option, permission: permission_id };
+    let command = Command::Answer {
+        option,
+        permission: permission_id,
+    };
     attached.conn.command(command_id, command)?;
     Ok(AnswerResult {
         accepted: true,
@@ -157,30 +172,44 @@ pub(crate) fn answer(
 
 /// The option the decision may use. Approving never accepts an
 /// `allow_always`; denying prefers `reject_once`, then the other safe reject.
-pub(crate) fn select_option<'a>(
-    permission: &'a Permission,
+pub(crate) fn select_option(
+    permission: &Permission,
     decision: Decision,
-) -> Option<&'a PermissionOption> {
+) -> Option<&PermissionOption> {
     let kinds: &[PermissionKind] = match decision {
         Decision::Approve => &[PermissionKind::AllowOnce],
         Decision::Deny => &[PermissionKind::RejectOnce, PermissionKind::RejectAlways],
     };
-    kinds
-        .iter()
-        .find_map(|kind| permission.options.iter().find(|option| option.kind == *kind))
+    kinds.iter().find_map(|kind| {
+        permission
+            .options
+            .iter()
+            .find(|option| option.kind == *kind)
+    })
 }
 
 fn check_epoch(endpoint_id: &EndpointId, current: Uuid, requested: Uuid) -> Result<()> {
     if current == requested {
         return Ok(());
     }
-    Err(Error::EpochMismatch { endpoint_id: endpoint_id.clone() })
+    Err(Error::EpochMismatch {
+        endpoint_id: endpoint_id.clone(),
+    })
 }
 
 impl SnapshotResult {
     fn new(endpoint_id: &EndpointId, attached: Attached) -> Self {
-        let Attached { welcome, cursor, transcript, .. } = attached;
-        let WelcomeInfo { agent, pane, version } = welcome;
+        let Attached {
+            welcome,
+            cursor,
+            transcript,
+            ..
+        } = attached;
+        let WelcomeInfo {
+            agent,
+            pane,
+            version,
+        } = welcome;
         let Transcript {
             auto_accept,
             entries,
@@ -229,7 +258,12 @@ fn tool_for(entries: &[Entry], call_id: Option<&str>) -> Option<ToolSummary> {
         EntryKind::Tool(tool) if tool.call_id == call_id => Some(ToolSummary {
             call_id: tool.call_id.clone(),
             kind: tool.kind,
-            locations: tool.locations.iter().take(MAX_TOOL_LOCATIONS).cloned().collect(),
+            locations: tool
+                .locations
+                .iter()
+                .take(MAX_TOOL_LOCATIONS)
+                .cloned()
+                .collect(),
             status: tool.status,
             title: tool.title.clone(),
         }),

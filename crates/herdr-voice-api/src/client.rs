@@ -12,7 +12,10 @@ use herdr_chat_protocol::{
     Transcript, VERSION, read_frame, write_frame,
 };
 
-use crate::{endpoint, error::{Error, Result, from_rejection}};
+use crate::{
+    endpoint,
+    error::{Error, Result, from_rejection},
+};
 
 /// Frames read for one greeting or one acknowledgement. Change frames may
 /// arrive before the frame we wait for; this bounds a peer that only sends
@@ -53,7 +56,11 @@ pub(crate) struct Attached {
 }
 
 impl Attached {
-    pub(crate) fn attach(dir: &Path, endpoint_id: &EndpointId, timeouts: &Timeouts) -> Result<Self> {
+    pub(crate) fn attach(
+        dir: &Path,
+        endpoint_id: &EndpointId,
+        timeouts: &Timeouts,
+    ) -> Result<Self> {
         let path = endpoint::path(dir, endpoint_id);
         endpoint::validate(&path, endpoint_id, endpoint::current_uid())?;
         let stream = endpoint::connect(&path, endpoint_id, timeouts.connect)?;
@@ -75,7 +82,9 @@ impl Attached {
         })?;
         let deadline = Instant::now()
             .checked_add(timeouts.total)
-            .ok_or(Error::Timeout { endpoint_id: endpoint_id.clone() })?;
+            .ok_or(Error::Timeout {
+                endpoint_id: endpoint_id.clone(),
+            })?;
         let mut conn = Connection {
             endpoint_id: endpoint_id.clone(),
             deadline,
@@ -102,9 +111,16 @@ impl Attached {
                         return Err(Error::UnexpectedMessage);
                     }
                     if version != VERSION {
-                        return Err(Error::VersionMismatch { got: version, supported: VERSION });
+                        return Err(Error::VersionMismatch {
+                            got: version,
+                            supported: VERSION,
+                        });
                     }
-                    welcome = Some(WelcomeInfo { agent, pane, version });
+                    welcome = Some(WelcomeInfo {
+                        agent,
+                        pane,
+                        version,
+                    });
                 }
                 Some(ServerMessage::Snapshot { cursor, transcript }) => {
                     let welcome = welcome.take().ok_or(Error::UnexpectedMessage)?;

@@ -126,15 +126,19 @@ fn transcript_with_options(options: Vec<PermissionOption>) -> Transcript {
         status: PlanStatus::InProgress,
     }];
     transcript.turn = Some(Turn { started_ms: 100 });
-    transcript.usage = Some(Usage { cost: None, size: 200_000, used: 1_000 });
+    transcript.usage = Some(Usage {
+        cost: None,
+        size: 200_000,
+        used: 1_000,
+    });
     transcript
 }
 
 fn spawn_server(
     path: &Path,
     run: impl FnOnce(&mut BufReader<UnixStream>, &mut UnixStream) -> herdr_chat_protocol::Result<()>
-        + Send
-        + 'static,
+    + Send
+    + 'static,
 ) -> JoinHandle<()> {
     let listener = UnixListener::bind(path).unwrap();
     thread::spawn(move || {

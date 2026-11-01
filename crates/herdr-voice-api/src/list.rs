@@ -5,7 +5,11 @@ use std::{fs, io, path::Path, time::Instant};
 use herdr_chat_protocol::EndpointId;
 use serde::Serialize;
 
-use crate::{client::Timeouts, endpoint, error::{Error, Result}};
+use crate::{
+    client::Timeouts,
+    endpoint,
+    error::{Error, Result},
+};
 
 /// The most endpoints one list returns.
 const MAX_ENDPOINTS: usize = 64;
@@ -70,9 +74,8 @@ pub(crate) fn list(dir: &Path, timeouts: &Timeouts) -> Result<ListResult> {
             break;
         }
         let path = endpoint::path(dir, &endpoint_id);
-        let result = endpoint::validate(&path, &endpoint_id, owner).and_then(|()| {
-            endpoint::connect(&path, &endpoint_id, connect_timeout).map(drop)
-        });
+        let result = endpoint::validate(&path, &endpoint_id, owner)
+            .and_then(|()| endpoint::connect(&path, &endpoint_id, connect_timeout).map(drop));
         match result {
             Ok(()) => endpoints.push(ListedEndpoint {
                 endpoint_id: endpoint_id.to_string(),

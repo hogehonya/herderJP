@@ -40,16 +40,25 @@ fn list_returns_live_sockets_and_reports_every_failed_candidate() {
 
     assert_eq!(result.endpoints.len(), 1);
     assert_eq!(result.endpoints[0].endpoint_id, live.to_string());
-    assert!(result.errors.iter().any(|error| {
-        error.endpoint_id == stale.to_string() && error.code == "connect_failed"
-    }));
-    assert!(result.errors.iter().any(|error| {
-        error.endpoint_id == regular.to_string() && error.code == "not_socket"
-    }));
+    assert!(
+        result.errors.iter().any(|error| {
+            error.endpoint_id == stale.to_string() && error.code == "connect_failed"
+        })
+    );
+    assert!(
+        result.errors.iter().any(|error| {
+            error.endpoint_id == regular.to_string() && error.code == "not_socket"
+        })
+    );
     assert!(result.errors.iter().any(|error| {
         error.endpoint_id == linked.to_string() && error.code == "symlink_endpoint"
     }));
-    assert!(result.errors.iter().all(|error| error.endpoint_id != "notes.txt"));
+    assert!(
+        result
+            .errors
+            .iter()
+            .all(|error| error.endpoint_id != "notes.txt")
+    );
 }
 
 #[test]

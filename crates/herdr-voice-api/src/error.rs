@@ -111,7 +111,7 @@ impl Error {
             Self::PromptTooLong => "prompt_too_long",
             Self::UnknownPermission { .. } => "unknown_permission",
             Self::NoMatchingOption => "unknown_option",
-            Self::Rejected { code, .. } => *code,
+            Self::Rejected { code, .. } => code,
         }
     }
 }
@@ -126,14 +126,8 @@ pub(crate) fn from_rejection(reason: Rejection) -> Error {
             "エージェントはまだプロンプトを受け付けられません",
         ),
         Rejection::NotWorking => ("not_working", "実行中のターンがありません"),
-        Rejection::UnknownPermission => (
-            "unknown_permission",
-            "その承認要求は既に解決済みです",
-        ),
-        Rejection::UnknownOption => (
-            "unknown_option",
-            "その選択肢は承認要求にありません",
-        ),
+        Rejection::UnknownPermission => ("unknown_permission", "その承認要求は既に解決済みです"),
+        Rejection::UnknownOption => ("unknown_option", "その選択肢は承認要求にありません"),
         Rejection::UnknownMode => ("unknown_mode", "そのモードはありません"),
         Rejection::UnknownSetting => ("unknown_setting", "その設定はありません"),
         Rejection::UnknownQueued => (
@@ -144,18 +138,9 @@ pub(crate) fn from_rejection(reason: Rejection) -> Error {
             "agent_unavailable",
             "エージェントにコマンドを届けられませんでした",
         ),
-        Rejection::TooManyAttachments => (
-            "too_many_attachments",
-            "添付ファイルが多すぎます",
-        ),
-        Rejection::QueueFull => (
-            "queue_full",
-            "待機中のプロンプトが上限に達しています",
-        ),
-        Rejection::UnknownFile => (
-            "unknown_file",
-            "添付ファイルを読み取れません",
-        ),
+        Rejection::TooManyAttachments => ("too_many_attachments", "添付ファイルが多すぎます"),
+        Rejection::QueueFull => ("queue_full", "待機中のプロンプトが上限に達しています"),
+        Rejection::UnknownFile => ("unknown_file", "添付ファイルを読み取れません"),
         Rejection::Unsupported => (
             "unsupported",
             "このチャットプログラムはこのコマンドに対応していません",

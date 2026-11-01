@@ -1,5 +1,9 @@
 use super::*;
-use crate::{error::Error, ops::{self, Decision}, request};
+use crate::{
+    error::Error,
+    ops::{self, Decision},
+    request,
+};
 use herdr_chat_protocol::Rejection;
 use std::thread;
 
@@ -16,15 +20,8 @@ fn a_stale_epoch_is_rejected_before_a_command_is_written() {
         Ok(())
     });
 
-    let error = ops::prompt(
-        dir.path(),
-        &endpoint_id,
-        requested,
-        "hello",
-        None,
-        &fast(),
-    )
-    .unwrap_err();
+    let error =
+        ops::prompt(dir.path(), &endpoint_id, requested, "hello", None, &fast()).unwrap_err();
     server.join().unwrap();
 
     assert!(matches!(error, Error::EpochMismatch { .. }));
@@ -54,7 +51,10 @@ fn answering_a_permission_that_is_not_pending_writes_nothing() {
     .unwrap_err();
     server.join().unwrap();
 
-    assert!(matches!(error, Error::UnknownPermission { permission_id: 99 }));
+    assert!(matches!(
+        error,
+        Error::UnknownPermission { permission_id: 99 }
+    ));
 }
 
 #[test]
@@ -81,7 +81,13 @@ fn a_chat_rejection_is_returned_with_its_code() {
     .unwrap_err();
     server.join().unwrap();
 
-    assert!(matches!(error, Error::Rejected { code: "unknown_permission", .. }));
+    assert!(matches!(
+        error,
+        Error::Rejected {
+            code: "unknown_permission",
+            ..
+        }
+    ));
 }
 
 #[test]
@@ -162,7 +168,10 @@ fn a_malformed_frame_is_a_protocol_error() {
 
 #[test]
 fn endpoint_ids_are_strict_lowercase_hexadecimal() {
-    assert!(matches!(request::parse_endpoint("not-an-id"), Err(Error::InvalidEndpointId)));
+    assert!(matches!(
+        request::parse_endpoint("not-an-id"),
+        Err(Error::InvalidEndpointId)
+    ));
     assert!(matches!(
         request::parse_endpoint(&"ABCDEF0123456789".repeat(2)),
         Err(Error::InvalidEndpointId)
