@@ -5311,6 +5311,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "herdr-voice-api"
+version = "0.1.0"
+dependencies = [
+ "herdr-chat-protocol",
+ "rustix",
+ "serde",
+ "serde_json",
+ "tempfile",
+ "thiserror 2.0.21",
+ "uuid",
+]
+
+[[package]]
 name = "hermit-abi"
 version = "0.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"

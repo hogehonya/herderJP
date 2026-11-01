@@ -1,0 +1,24 @@
+[package]
+description            = "Structured JSON API for Herdr Voice Bridge to drive herdr-acp chats"
+edition.workspace      = true
+license.workspace      = true
+name                   = "herdr-voice-api"
+publish.workspace      = true
+rust-version.workspace = true
+version.workspace      = true
+
+[lints]
+workspace = true
+
+[dependencies]
+herdr-chat-protocol.workspace = true
+serde.workspace               = true
+serde_json.workspace          = true
+thiserror.workspace           = true
+uuid.workspace                = true
+
+[dev-dependencies]
+tempfile.workspace = true
+
+[target.'cfg(unix)'.dependencies]
+rustix.workspace = true
