@@ -4,7 +4,7 @@ use herdr_i18n::{Language, Pseudo};
 
 #[test]
 fn without_the_app_status_resolves_the_setting_as_it_would() {
-    // No language but English has messages yet, so a tag falls back.
+    // French has no messages yet, so its tag falls back.
     let french = local(&Language::Locale("fr-CA".parse().unwrap()));
     assert_eq!(
         (french.configured.as_str(), french.locale.as_str()),
@@ -54,6 +54,20 @@ fn list_names_each_language_in_itself() {
     assert_eq!(english["tag"], "en-US");
     assert_eq!(english["name"], "English");
     assert_eq!(english["pseudo"], false);
+    let japanese = json
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|language| language["tag"] == "ja")
+        .unwrap();
+    assert_eq!(japanese["name"], "日本語");
+    assert_eq!(japanese["direction"], "ltr");
+    assert_eq!(japanese["pseudo"], false);
+    assert!(
+        output.text.contains("ja      ltr  日本語"),
+        "{}",
+        output.text
+    );
     let accented = json
         .as_array()
         .unwrap()
