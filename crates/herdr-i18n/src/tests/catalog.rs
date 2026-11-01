@@ -105,3 +105,13 @@ fn each_language_is_named_in_itself() {
         ]
     );
 }
+
+#[test]
+fn defines_tells_a_locales_own_messages_from_the_fallback() {
+    let french = Catalog::new(FILES, locale("fr")).unwrap();
+    assert!(french.defines("greeting-hello"));
+    assert!(!french.defines("menu-quit"));
+    let english = Catalog::new(FILES, Locale::FALLBACK).unwrap();
+    assert!(english.defines("greeting-hello"));
+    assert!(english.defines("menu-quit"));
+}

@@ -287,7 +287,7 @@ class ReleaseTests(unittest.TestCase):
         arm, intel = self.macos_builds()
         self.run_script("package-macos.sh", "20260920.3", arm, intel, self.work, self.notices)
         app = self.work / "Herdr.app"
-        self.assertEqual({str(p.relative_to(app)) for p in app.rglob("*") if p.is_file()}, {
+        expected = {
             "Contents/MacOS/Herdr", "Contents/MacOS/herdr-acp", "Contents/MacOS/herdr-remote-control",
             "Contents/MacOS/herdr-automate", "Contents/MacOS/herdr-nearby", "Contents/MacOS/herdr-core",
             "Contents/Info.plist", "Contents/Resources/Herdr.icns",
@@ -297,7 +297,12 @@ class ReleaseTests(unittest.TestCase):
             "Contents/Resources/THIRD-PARTY-NOTICES.txt",
             "Contents/Resources/SOUND-NOTICE.md",
             "Contents/Resources/HERDR-CORE-LICENSES.txt",
-        })
+        }
+        expected.update(
+            f"Contents/Resources/{path.parent.name}/InfoPlist.strings"
+            for path in (ROOT / "assets/macos").glob("*.lproj/InfoPlist.strings")
+        )
+        self.assertEqual({str(p.relative_to(app)) for p in app.rglob("*") if p.is_file()}, expected)
         self.assertEqual((app / "Contents/Resources/THIRD-PARTY-NOTICES.txt").read_bytes(), self.notices.read_bytes())
         self.assertEqual((app / "Contents/Resources/HERDR-CORE-LICENSES.txt").read_bytes(),
                          (SCRIPTS / "herdr-core-licenses.txt").read_bytes())

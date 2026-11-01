@@ -142,9 +142,15 @@ impl Catalog {
     /// Whether the locale's own files hold [`ENDONYM`], rather than the
     /// fallback's English.
     fn names_itself(&self) -> bool {
+        self.defines(ENDONYM)
+    }
+
+    /// Whether this locale's own files define `id`, rather than showing the
+    /// fallback's English for it.
+    pub fn defines(&self, id: &str) -> bool {
         self.loader.with_message_iter(self.locale.id(), |messages| {
             let mut messages = messages;
-            Iterator::any(&mut messages, |message| message.id.name == ENDONYM)
+            Iterator::any(&mut messages, |message| message.id.name == id)
         })
     }
 

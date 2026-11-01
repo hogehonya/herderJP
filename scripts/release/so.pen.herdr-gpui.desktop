@@ -5,6 +5,7 @@ Name=Herdr
 # language tag with an underscore (Comment[pt_BR]=), as the Desktop Entry
 # Specification spells locales. Name is the product's and stays as it is.
 Comment=Native client for an existing local Herdr daemon
+Comment[ja]=既存のローカル Herdr デーモン用ネイティブクライアント
 Exec=herdr-gpui
 Icon=herdr-gpui
 Terminal=false

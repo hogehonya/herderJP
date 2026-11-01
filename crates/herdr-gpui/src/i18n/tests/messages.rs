@@ -28,15 +28,33 @@ fn numbered_commands_say_their_number_in_english_without_isolation() {
 }
 
 /// The build script refuses files that do not parse; what it embeds is
-/// every English file, and the table `fl!` searches is sorted.
+/// every language's files, and the table `fl!` searches is sorted.
 #[test]
-fn the_embedded_files_are_the_english_ones_and_the_table_is_sorted() {
+fn the_embedded_files_cover_every_language_and_the_table_is_sorted() {
     assert!(
         FILES
             .iter()
             .any(|file| file.language == "en-US" && file.feature == "commands")
     );
-    assert!(FILES.iter().all(|file| file.language == "en-US"));
     assert!(MESSAGES.windows(2).all(|pair| pair[0].0 < pair[1].0));
-    assert_eq!(available(), vec![Locale::FALLBACK]);
+    let languages = available();
+    assert_eq!(languages.first(), Some(&Locale::FALLBACK));
+    for file in FILES {
+        let language: Locale = file.language.parse().unwrap();
+        assert!(languages.contains(&language), "{}", file.language);
+    }
+    assert_eq!(endonym(&"ja".parse().unwrap()), "日本語");
+}
+
+/// Japanese ships complete: every English message has Japanese of its own,
+/// rather than showing the fallback.
+#[test]
+fn japanese_translates_every_english_message() {
+    let japanese = Catalog::new(FILES, "ja".parse().unwrap()).unwrap();
+    let missing: Vec<_> = MESSAGES
+        .iter()
+        .map(|(id, _)| *id)
+        .filter(|id| !japanese.defines(id))
+        .collect();
+    assert!(missing.is_empty(), "{missing:?}");
 }
