@@ -51,13 +51,25 @@ fn responses_are_ok_or_error_objects() {
     let response = Response::success(Body::List(ListResult {
         endpoints: Vec::new(),
         errors: Vec::new(),
+        truncated: false,
     }));
     assert_eq!(
         serde_json::to_value(&response).unwrap(),
         serde_json::json!({
             "ok": true,
-            "result": {"endpoints": [], "errors": []},
+            "result": {"endpoints": [], "errors": [], "truncated": false},
         })
+    );
+
+    let response = Response::success(Body::List(ListResult {
+        endpoints: Vec::new(),
+        errors: Vec::new(),
+        truncated: true,
+    }));
+    assert!(
+        serde_json::to_value(&response).unwrap()["result"]["truncated"]
+            .as_bool()
+            .unwrap()
     );
 
     let response = Response::failure(&Error::PromptEmpty);

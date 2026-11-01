@@ -57,9 +57,13 @@ new UUID; the result always returns the id that was sent.
 ### `list`
 
 Returns at most 64 endpoints that are sockets owned by the current user and are
-not symlinks. Unreachable endpoints, stale socket files, symlinks, and
-non-sockets are reported in `errors` instead of being silently omitted. This
-operation never removes a socket.
+not symlinks, plus a `truncated` flag. Unreachable endpoints, stale socket
+files, symlinks, and non-sockets are reported in `errors` instead of being
+silently omitted. `truncated` is `false` only when every directory entry and
+candidate was examined; it is `true` when the 64-endpoint limit, the total
+deadline, or the 1024-entry scan limit stopped the survey with entries or
+candidates left, so the list is incomplete. This operation never removes a
+socket.
 
 ### `snapshot`
 
@@ -100,4 +104,5 @@ stdin is limited to 1 MiB. Connect is bounded to 3 seconds, each read and write
 to 10 seconds, and a whole request to 20 seconds. Frames use the chat
 protocol's `MAX_FRAME_SIZE`, and a greeting or acknowledgement reads at most
 256 frames. `list` examines at most 1024 directory entries and returns at most
-64 endpoints.
+64 endpoints; it sets `truncated` when either limit or the total deadline stops
+the survey before every candidate is examined.

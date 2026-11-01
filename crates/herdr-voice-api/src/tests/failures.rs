@@ -150,6 +150,46 @@ fn a_silent_endpoint_times_out() {
 }
 
 #[test]
+fn a_zero_total_deadline_times_out_before_connecting() {
+    let dir = tmpdir();
+    let endpoint_id = EndpointId::random();
+    let path = socket(dir.path(), &endpoint_id);
+    let _listener = UnixListener::bind(&path).unwrap();
+    let timeouts = Timeouts {
+        connect: Duration::from_secs(1),
+        io: Duration::from_secs(1),
+        total: Duration::ZERO,
+    };
+
+    let error = ops::snapshot(dir.path(), &endpoint_id, &timeouts).unwrap_err();
+
+    assert!(matches!(error, Error::Timeout { .. }));
+}
+
+#[test]
+fn a_short_total_deadline_stops_a_silent_command() {
+    let dir = tmpdir();
+    let endpoint_id = EndpointId::random();
+    let epoch = Uuid::from_u128(1);
+    let path = socket(dir.path(), &endpoint_id);
+    let server = spawn_server(&path, move |reader, writer| {
+        greet(reader, writer, cursor(epoch), transcript(), None)?;
+        thread::sleep(Duration::from_millis(1_000));
+        Ok(())
+    });
+    let timeouts = Timeouts {
+        connect: Duration::from_secs(1),
+        io: Duration::from_secs(2),
+        total: Duration::from_millis(500),
+    };
+
+    let error = ops::prompt(dir.path(), &endpoint_id, epoch, "hello", None, &timeouts).unwrap_err();
+    server.join().unwrap();
+
+    assert!(matches!(error, Error::Timeout { .. }));
+}
+
+#[test]
 fn a_malformed_frame_is_a_protocol_error() {
     let dir = tmpdir();
     let endpoint_id = EndpointId::random();

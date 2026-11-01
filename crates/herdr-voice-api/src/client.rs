@@ -61,9 +61,22 @@ impl Attached {
         endpoint_id: &EndpointId,
         timeouts: &Timeouts,
     ) -> Result<Self> {
+        let deadline = Instant::now()
+            .checked_add(timeouts.total)
+            .ok_or_else(|| Error::Timeout {
+                endpoint_id: endpoint_id.clone(),
+            })?;
         let path = endpoint::path(dir, endpoint_id);
         endpoint::validate(&path, endpoint_id, endpoint::current_uid())?;
-        let stream = endpoint::connect(&path, endpoint_id, timeouts.connect)?;
+        let connect_timeout = deadline
+            .saturating_duration_since(Instant::now())
+            .min(timeouts.connect);
+        if connect_timeout.is_zero() {
+            return Err(Error::Timeout {
+                endpoint_id: endpoint_id.clone(),
+            });
+        }
+        let stream = endpoint::connect(&path, endpoint_id, connect_timeout)?;
         stream
             .set_read_timeout(Some(timeouts.io))
             .map_err(|source| Error::Socket {
@@ -80,11 +93,6 @@ impl Attached {
             endpoint_id: endpoint_id.clone(),
             source,
         })?;
-        let deadline = Instant::now()
-            .checked_add(timeouts.total)
-            .ok_or(Error::Timeout {
-                endpoint_id: endpoint_id.clone(),
-            })?;
         let mut conn = Connection {
             endpoint_id: endpoint_id.clone(),
             deadline,
