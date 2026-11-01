@@ -1,0 +1,13 @@
+when:
+  - event: pull_request
+  - event: push
+    branch: main
+
+steps:
+  - name: herdr-voice-api
+    image: rust:1.96.1-bookworm
+    commands:
+      - rustup component add clippy rustfmt
+      - cargo fmt -p herdr-voice-api -- --check
+      - cargo clippy --locked -p herdr-voice-api --all-targets -- -D warnings
+      - cargo test --locked -p herdr-voice-api

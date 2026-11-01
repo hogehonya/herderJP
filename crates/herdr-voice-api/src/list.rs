@@ -12,15 +12,16 @@ use crate::{
 };
 
 /// The most endpoints one list returns.
-const MAX_ENDPOINTS: usize = 64;
+pub(crate) const MAX_ENDPOINTS: usize = 64;
 /// The most directory entries one list examines, so a crowded directory cannot
 /// make the request unbounded.
-const MAX_SCAN: usize = 1024;
+pub(crate) const MAX_SCAN: usize = 1024;
 
 #[derive(Debug, Serialize)]
 pub(crate) struct ListResult {
     pub(crate) endpoints: Vec<ListedEndpoint>,
     pub(crate) errors: Vec<ListError>,
+    pub(crate) truncated: bool,
 }
 
 #[derive(Debug, Serialize)]
@@ -39,17 +40,23 @@ pub(crate) struct ListError {
 
 pub(crate) fn list(dir: &Path, timeouts: &Timeouts) -> Result<ListResult> {
     let mut candidates = Vec::new();
+    let mut truncated = false;
     let entries = match fs::read_dir(dir) {
         Ok(entries) => entries,
         Err(error) if error.kind() == io::ErrorKind::NotFound => {
             return Ok(ListResult {
                 endpoints: Vec::new(),
                 errors: Vec::new(),
+                truncated: false,
             });
         }
         Err(error) => return Err(Error::EndpointDir(error)),
     };
-    for entry in entries.take(MAX_SCAN) {
+    for (scanned, entry) in entries.enumerate() {
+        if scanned == MAX_SCAN {
+            truncated = true;
+            break;
+        }
         let entry = entry.map_err(Error::EndpointDir)?;
         if let Some(endpoint_id) = endpoint_id_from_path(&entry.path()) {
             candidates.push(endpoint_id);
@@ -63,6 +70,7 @@ pub(crate) fn list(dir: &Path, timeouts: &Timeouts) -> Result<ListResult> {
     let mut errors = Vec::new();
     for endpoint_id in candidates {
         if endpoints.len() == MAX_ENDPOINTS {
+            truncated = true;
             break;
         }
         let connect_timeout = deadline.map_or(timeouts.connect, |deadline| {
@@ -71,6 +79,7 @@ pub(crate) fn list(dir: &Path, timeouts: &Timeouts) -> Result<ListResult> {
                 .min(timeouts.connect)
         });
         if connect_timeout.is_zero() {
+            truncated = true;
             break;
         }
         let path = endpoint::path(dir, &endpoint_id);
@@ -87,7 +96,11 @@ pub(crate) fn list(dir: &Path, timeouts: &Timeouts) -> Result<ListResult> {
             }),
         }
     }
-    Ok(ListResult { endpoints, errors })
+    Ok(ListResult {
+        endpoints,
+        errors,
+        truncated,
+    })
 }
 
 /// The endpoint id in `name.sock`, when the name is exactly 32 lowercase

@@ -89,7 +89,8 @@ on.
         "code": "connect_failed",
         "message": "エンドポイント <endpoint-id-from-list> に接続できませんでした"
       }
-    ]
+    ],
+    "truncated": false
   }
 }
 ```
@@ -97,6 +98,10 @@ on.
 Only sockets in `herdr_chat_protocol::endpoint_dir` are considered, at most 64
 are returned, and a socket must be a socket this user owns and not a symlink.
 Stale or unreachable sockets appear in `errors`; listing does not remove them.
+`truncated` is `false` only when every directory entry and candidate was
+examined. It is `true` when listing stopped early because the 64-endpoint
+limit was reached with candidates left, the total deadline expired, or more
+than 1024 directory entries were present, so the list is incomplete.
 
 ### `snapshot`
 
@@ -190,7 +195,8 @@ rejected by the chat's own `UnknownPermission`.
 
 - stdin: 1 MiB, one JSON object per process.
 - endpoint directory: at most 1024 entries examined, at most 64 endpoints
-  returned.
+  returned, and `truncated` set when either limit or the total deadline stops
+  the survey before it is complete.
 - connect: 3 seconds; each read and write: 10 seconds; one request: 20 seconds
   in total.
 - frames: the chat protocol's `MAX_FRAME_SIZE`; at most 256 frames per

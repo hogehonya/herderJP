@@ -9,6 +9,7 @@ fn list_of_a_missing_directory_is_empty() {
     let result = list::list(&dir.path().join("missing"), &fast()).unwrap();
     assert!(result.endpoints.is_empty());
     assert!(result.errors.is_empty());
+    assert!(!result.truncated);
 }
 
 #[test]
@@ -59,6 +60,71 @@ fn list_returns_live_sockets_and_reports_every_failed_candidate() {
             .iter()
             .all(|error| error.endpoint_id != "notes.txt")
     );
+    assert!(!result.truncated);
+}
+
+fn bound_sockets(dir: &Path, count: usize) -> Vec<UnixListener> {
+    (0..count)
+        .map(|_| {
+            let endpoint_id = EndpointId::random();
+            UnixListener::bind(socket(dir, &endpoint_id)).unwrap()
+        })
+        .collect()
+}
+
+#[test]
+fn list_returns_every_endpoint_at_the_limit_without_truncating() {
+    let dir = tmpdir();
+    let _sockets = bound_sockets(dir.path(), list::MAX_ENDPOINTS);
+
+    let result = list::list(dir.path(), &fast()).unwrap();
+
+    assert_eq!(result.endpoints.len(), list::MAX_ENDPOINTS);
+    assert!(result.errors.is_empty());
+    assert!(!result.truncated);
+}
+
+#[test]
+fn list_marks_an_endpoint_limit_as_truncated() {
+    let dir = tmpdir();
+    let _sockets = bound_sockets(dir.path(), list::MAX_ENDPOINTS + 1);
+
+    let result = list::list(dir.path(), &fast()).unwrap();
+
+    assert_eq!(result.endpoints.len(), list::MAX_ENDPOINTS);
+    assert!(result.errors.is_empty());
+    assert!(result.truncated);
+}
+
+#[test]
+fn list_marks_a_directory_scan_limit_as_truncated_only_when_it_is_exceeded() {
+    let dir = tmpdir();
+    for index in 0..list::MAX_SCAN {
+        fs::File::create(dir.path().join(format!("entry-{index}"))).unwrap();
+    }
+    let result = list::list(dir.path(), &fast()).unwrap();
+    assert!(!result.truncated);
+
+    fs::File::create(dir.path().join("one-more")).unwrap();
+    let result = list::list(dir.path(), &fast()).unwrap();
+    assert!(result.truncated);
+}
+
+#[test]
+fn list_marks_a_deadline_stop_as_truncated() {
+    let dir = tmpdir();
+    let _socket = UnixListener::bind(socket(dir.path(), &EndpointId::random())).unwrap();
+    let timeouts = Timeouts {
+        connect: Duration::from_secs(1),
+        io: Duration::from_secs(2),
+        total: Duration::ZERO,
+    };
+
+    let result = list::list(dir.path(), &timeouts).unwrap();
+
+    assert!(result.endpoints.is_empty());
+    assert!(result.errors.is_empty());
+    assert!(result.truncated);
 }
 
 #[test]
