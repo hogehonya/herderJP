@@ -61,11 +61,12 @@ impl Attached {
         endpoint_id: &EndpointId,
         timeouts: &Timeouts,
     ) -> Result<Self> {
-        let deadline = Instant::now()
-            .checked_add(timeouts.total)
-            .ok_or_else(|| Error::Timeout {
-                endpoint_id: endpoint_id.clone(),
-            })?;
+        let deadline =
+            Instant::now()
+                .checked_add(timeouts.total)
+                .ok_or_else(|| Error::Timeout {
+                    endpoint_id: endpoint_id.clone(),
+                })?;
         let path = endpoint::path(dir, endpoint_id);
         endpoint::validate(&path, endpoint_id, endpoint::current_uid())?;
         let connect_timeout = deadline

@@ -52,13 +52,11 @@ pub(crate) fn list(dir: &Path, timeouts: &Timeouts) -> Result<ListResult> {
         }
         Err(error) => return Err(Error::EndpointDir(error)),
     };
-    let mut scanned = 0;
-    for entry in entries {
+    for (scanned, entry) in entries.enumerate() {
         if scanned == MAX_SCAN {
             truncated = true;
             break;
         }
-        scanned += 1;
         let entry = entry.map_err(Error::EndpointDir)?;
         if let Some(endpoint_id) = endpoint_id_from_path(&entry.path()) {
             candidates.push(endpoint_id);
