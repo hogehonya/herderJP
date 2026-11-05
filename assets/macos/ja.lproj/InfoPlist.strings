@@ -1,0 +1,32 @@
+/* Sheprd の macOS 権限プロンプト（日本語）。 */
+
+NSAppDataUsageDescription = "Sheprd のターミナルで実行されるプログラムは、他のアプリのデータへのアクセスを要求できます。";
+NSAppleEventsUsageDescription = "Sheprd のターミナルで実行されるプログラムは、他のアプリを操作する許可を要求できます。";
+NSAppleMusicUsageDescription = "Sheprd のターミナルで実行されるプログラムは、ミュージックとメディアライブラリへのアクセスを要求できます。";
+NSBluetoothAlwaysUsageDescription = "Sheprd はリモート操作のペアリングダイアログが開いている間、Bluetooth 経由で近くの iPhone とペアリングします。Sheprd のターミナルで実行されるプログラムも Bluetooth へのアクセスを要求できます。";
+NSCalendarsFullAccessUsageDescription = "Sheprd のターミナルで実行されるプログラムは、カレンダーの表示と編集へのアクセスを要求できます。";
+NSCalendarsUsageDescription = "Sheprd のターミナルで実行されるプログラムは、カレンダーの表示と編集へのアクセスを要求できます。";
+NSCalendarsWriteOnlyAccessUsageDescription = "Sheprd のターミナルで実行されるプログラムは、カレンダーへの予定追加の許可を要求できます。";
+NSCameraUsageDescription = "Sheprd のターミナルで実行されるプログラムは、カメラへのアクセスを要求できます。";
+NSContactsUsageDescription = "Sheprd のターミナルで実行されるプログラムは、連絡先の表示と編集へのアクセスを要求できます。";
+NSDesktopFolderUsageDescription = "Sheprd のターミナルで実行されるプログラムは、デスクトップフォルダへのアクセスを要求できます。";
+NSDocumentsFolderUsageDescription = "Sheprd のターミナルで実行されるプログラムは、書類フォルダへのアクセスを要求できます。";
+NSDownloadsFolderUsageDescription = "Sheprd のターミナルで実行されるプログラムは、ダウンロードフォルダへのアクセスを要求できます。";
+NSFileProviderDomainUsageDescription = "Sheprd のターミナルで実行されるプログラムは、クラウドストレージアプリが管理するファイルへのアクセスを要求できます。";
+NSGKFriendListUsageDescription = "Sheprd のターミナルで実行されるプログラムは、Game Center のフレンドリストへのアクセスを要求できます。";
+NSLocalNetworkUsageDescription = "Sheprd はローカルネットワーク上で SSH を提供するコンピューターを見つけ、追加したデバイスに SSH 経由で接続します。";
+NSLocationAlwaysAndWhenInUseUsageDescription = "Sheprd のターミナルで実行されるプログラムは、位置情報へのアクセスを要求できます。";
+NSLocationUsageDescription = "Sheprd のターミナルで実行されるプログラムは、位置情報へのアクセスを要求できます。";
+NSLocationWhenInUseUsageDescription = "Sheprd のターミナルで実行されるプログラムは、位置情報へのアクセスを要求できます。";
+NSMicrophoneUsageDescription = "Sheprd のターミナルで実行されるプログラムは、マイクへのアクセスを要求できます。";
+NSNetworkVolumesUsageDescription = "Sheprd のターミナルで実行されるプログラムは、ネットワークボリューム上のファイルへのアクセスを要求できます。";
+NSPhotoLibraryAddUsageDescription = "Sheprd のターミナルで実行されるプログラムは、写真ライブラリへの追加の許可を要求できます。";
+NSPhotoLibraryUsageDescription = "Sheprd のターミナルで実行されるプログラムは、写真ライブラリの表示と編集へのアクセスを要求できます。";
+NSRemindersFullAccessUsageDescription = "Sheprd のターミナルで実行されるプログラムは、リマインダーの表示と編集へのアクセスを要求できます。";
+NSRemindersUsageDescription = "Sheprd のターミナルで実行されるプログラムは、リマインダーの表示と編集へのアクセスを要求できます。";
+NSRemovableVolumesUsageDescription = "Sheprd のターミナルで実行されるプログラムは、取り外し可能なボリューム上のファイルへのアクセスを要求できます。";
+NSSpeechRecognitionUsageDescription = "Sheprd のターミナルで実行されるプログラムは、音声認識へのアクセスを要求できます。";
+NSSystemAdministrationUsageDescription = "Sheprd のターミナルで実行されるプログラムは、システム設定の変更許可を要求できます。";
+NSSystemExtensionUsageDescription = "Sheprd のターミナルで実行されるプログラムは、システム拡張機能のインストール許可を要求できます。";
+NSUserTrackingUsageDescription = "Sheprd のターミナルで実行されるプログラムは、アプリと Web サイトをまたいだアクティビティの追跡許可を要求できます。";
+NSVideoSubscriberAccountUsageDescription = "Sheprd のターミナルで実行されるプログラムは、テレビプロバイダーのアカウントへのアクセスを要求できます。";

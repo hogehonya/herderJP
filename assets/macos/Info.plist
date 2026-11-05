@@ -7,6 +7,7 @@
     <key>CFBundleLocalizations</key>
     <array>
         <string>en-US</string>
+        <string>ja</string>
     </array>
     <key>CFBundleDisplayName</key><string>Sheprd</string>
     <key>CFBundleIdentifier</key><string>so.pen.herdr-gpui</string>
